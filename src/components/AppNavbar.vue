@@ -9,7 +9,7 @@ const sections = [
   { label: 'WORK', id: 'work', available: true },
   { label: 'ABOUT', id: 'about', available: true },
   { label: 'EXPERIENCE', id: 'experience', available: true },
-  { label: 'CONTACT', id: 'contact', available: false },
+  { label: 'CONTACT', id: 'contact', available: true },
 ]
 
 function closeMenu() {
