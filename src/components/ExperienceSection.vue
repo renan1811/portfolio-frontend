@@ -1,15 +1,15 @@
 <script setup>
 import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { fetchExperiences, fetchFormations, fetchTechnologies } from '../services/experience'
+import { useScrollReveal } from '../composables/useScrollReveal'
 import TechnologyLabel from './TechnologyLabel.vue'
 
 const sectionElement = ref(null)
-const isVisible = ref(false)
+useScrollReveal(sectionElement)
 const experiences = reactive({ status: 'loading', items: [] })
 const formations = reactive({ status: 'loading', items: [] })
 const technologies = reactive({ status: 'loading', items: [] })
 const controllers = new Map()
-let observer
 
 async function loadResource(key, state, fetcher) {
   controllers.get(key)?.abort()
@@ -38,22 +38,9 @@ onMounted(() => {
   loadExperiences()
   loadFormations()
   loadTechnologies()
-
-  if (!('IntersectionObserver' in window)) {
-    isVisible.value = true
-    return
-  }
-
-  observer = new IntersectionObserver(([entry]) => {
-    if (!entry.isIntersecting) return
-    isVisible.value = true
-    observer.disconnect()
-  }, { threshold: 0 })
-  observer.observe(sectionElement.value)
 })
 
 onBeforeUnmount(() => {
-  observer?.disconnect()
   controllers.forEach((controller) => controller.abort())
 })
 </script>
@@ -63,21 +50,20 @@ onBeforeUnmount(() => {
     id="experience"
     ref="sectionElement"
     aria-labelledby="experience-title"
-    class="page-container w-full scroll-mt-8 pb-32 pt-24 md:pb-44 md:pt-36"
-    :class="{ 'is-visible': isVisible }"
+    class="page-container w-full scroll-mt-8 pb-28 pt-20 md:pb-40 md:pt-32"
   >
-    <div class="experience-reveal mb-8 flex items-center gap-5 text-[0.72rem] font-medium tracking-[0.16em] text-accent md:mb-10">
+    <div data-scroll-reveal class="mb-7 flex items-center gap-5 text-[0.72rem] font-medium tracking-[0.16em] text-accent md:mb-8">
       <span aria-hidden="true" class="h-px w-11 bg-accent md:w-20"></span>
-      <p>04 / EXPERIENCE &amp; SKILLS</p>
+      <p>04 / EXPERIÊNCIA &amp; TECNOLOGIAS</p>
     </div>
 
-    <h2 id="experience-title" class="experience-title experience-reveal font-editorial leading-[0.82] tracking-[-0.065em] text-ink">
+    <h2 id="experience-title" data-scroll-reveal style="--reveal-delay: 70ms" class="experience-title font-editorial leading-[0.82] tracking-[-0.065em] text-ink">
       Experiência e <em class="text-accent">tecnologias.</em>
     </h2>
 
-    <div class="experience-reveal mt-12 border-t border-line pt-12 md:mt-16 md:pt-16">
+    <div data-scroll-reveal style="--reveal-delay: 130ms" class="mt-10 border-t border-line pt-10 md:mt-14 md:pt-14">
       <section aria-labelledby="experiences-heading">
-        <h3 id="experiences-heading" class="mb-7 text-[0.72rem] font-medium tracking-[0.16em] text-accent md:mb-9">EXPERIÊNCIAS</h3>
+        <h3 id="experiences-heading" class="mb-6 text-[0.72rem] font-medium tracking-[0.16em] text-accent md:mb-8">EXPERIÊNCIAS</h3>
 
         <p v-if="experiences.status === 'loading'" role="status" aria-live="polite" class="py-8 text-sm text-accent">Carregando experiências…</p>
         <div v-else-if="experiences.status === 'error'" role="alert" class="border-t border-line py-8">
@@ -89,11 +75,13 @@ onBeforeUnmount(() => {
           <li
             v-for="(item, index) in experiences.items"
             :key="item.id ?? index"
-            class="experience-row grid min-w-0 gap-x-8 gap-y-3 border-b border-line py-7 md:py-9 lg:grid-cols-[minmax(7rem,0.18fr)_minmax(0,0.34fr)_minmax(0,0.48fr)] lg:gap-x-12"
+            data-scroll-reveal
+            :style="{ '--reveal-delay': `${Math.min(index * 60, 240)}ms` }"
+            class="experience-row grid min-w-0 gap-x-8 gap-y-3 border-b border-line py-6 md:py-8 lg:grid-cols-[minmax(7rem,0.18fr)_minmax(0,0.34fr)_minmax(0,0.48fr)] lg:gap-x-12"
           >
             <p class="pt-1 text-xs font-medium tracking-[0.1em] text-accent">{{ item.period }}</p>
             <div class="min-w-0">
-              <h4 class="font-editorial text-[clamp(2rem,3.2vw,3rem)] leading-[0.98] text-ink">{{ item.title }}</h4>
+              <h4 class="font-editorial text-[clamp(1.8rem,2.85vw,2.7rem)] leading-[0.98] text-ink">{{ item.title }}</h4>
               <p v-if="item.organization" class="mt-2 text-sm leading-relaxed text-accent">{{ item.organization }}</p>
             </div>
             <div v-if="item.description || item.type" class="min-w-0 lg:pt-1">
@@ -104,8 +92,8 @@ onBeforeUnmount(() => {
         </ol>
       </section>
 
-      <section aria-labelledby="formations-heading" class="mt-20 md:mt-28">
-        <h3 id="formations-heading" class="mb-7 text-[0.72rem] font-medium tracking-[0.16em] text-accent md:mb-9">FORMAÇÃO</h3>
+      <section aria-labelledby="formations-heading" class="mt-16 md:mt-24">
+        <h3 id="formations-heading" class="mb-6 text-[0.72rem] font-medium tracking-[0.16em] text-accent md:mb-8">FORMAÇÃO</h3>
 
         <p v-if="formations.status === 'loading'" role="status" aria-live="polite" class="py-8 text-sm text-accent">Carregando formações…</p>
         <div v-else-if="formations.status === 'error'" role="alert" class="border-t border-line py-8">
@@ -117,11 +105,13 @@ onBeforeUnmount(() => {
           <li
             v-for="(item, index) in formations.items"
             :key="item.id ?? index"
-            class="grid min-w-0 gap-x-8 gap-y-3 border-b border-line py-7 md:py-8 lg:grid-cols-[minmax(7rem,0.18fr)_minmax(0,0.43fr)_minmax(0,0.39fr)] lg:gap-x-12"
+            data-scroll-reveal
+            :style="{ '--reveal-delay': `${Math.min(index * 60, 180)}ms` }"
+            class="grid min-w-0 gap-x-8 gap-y-3 border-b border-line py-6 md:py-7 lg:grid-cols-[minmax(7rem,0.18fr)_minmax(0,0.43fr)_minmax(0,0.39fr)] lg:gap-x-12"
           >
             <p class="pt-1 text-xs font-medium tracking-[0.1em] text-accent">{{ item.period }}</p>
             <div class="min-w-0">
-              <h4 class="font-editorial text-[clamp(1.85rem,2.8vw,2.65rem)] leading-[1.02] text-ink">{{ item.course }}</h4>
+              <h4 class="font-editorial text-[clamp(1.65rem,2.5vw,2.4rem)] leading-[1.02] text-ink">{{ item.course }}</h4>
               <p v-if="item.institution" class="mt-2 text-sm leading-relaxed text-accent">{{ item.institution }}</p>
             </div>
             <div v-if="item.description || item.status" class="min-w-0 lg:pt-1">
@@ -132,8 +122,8 @@ onBeforeUnmount(() => {
         </ol>
       </section>
 
-      <section aria-labelledby="technologies-heading" class="mt-20 md:mt-28">
-        <h3 id="technologies-heading" class="mb-7 text-[0.72rem] font-medium tracking-[0.16em] text-accent md:mb-9">TECNOLOGIAS</h3>
+      <section aria-labelledby="technologies-heading" class="mt-16 md:mt-24">
+        <h3 id="technologies-heading" class="mb-6 text-[0.72rem] font-medium tracking-[0.16em] text-accent md:mb-8">TECNOLOGIAS</h3>
 
         <p v-if="technologies.status === 'loading'" role="status" aria-live="polite" class="py-8 text-sm text-accent">Carregando tecnologias…</p>
         <div v-else-if="technologies.status === 'error'" role="alert" class="border-t border-line py-8">
@@ -142,7 +132,7 @@ onBeforeUnmount(() => {
         </div>
         <p v-else-if="technologies.items.length === 0" class="border-t border-line py-8 text-sm text-accent">Nenhuma tecnologia publicada no momento.</p>
         <ul v-else class="grid grid-cols-2 gap-x-6 border-t border-line sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-10">
-          <li v-for="(item, index) in technologies.items" :key="item.id ?? index" class="min-w-0 border-b border-line py-5 md:py-6">
+          <li v-for="(item, index) in technologies.items" :key="item.id ?? index" data-scroll-reveal :style="{ '--reveal-delay': `${Math.min(index * 35, 210)}ms` }" class="min-w-0 border-b border-line py-5 md:py-6">
             <TechnologyLabel :technology="item" />
           </li>
         </ul>
@@ -152,21 +142,8 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.experience-title { font-size: clamp(4.1rem, 7.4vw, 7.8rem); }
-.experience-reveal {
-  opacity: 0;
-  transform: translateY(0.85rem);
-  transition: opacity 700ms var(--ease-editorial), transform 700ms var(--ease-editorial);
-}
-.is-visible .experience-reveal { opacity: 1; transform: none; }
-.experience-reveal:nth-child(2) { transition-delay: 80ms; }
-.experience-reveal:nth-child(3) { transition-delay: 140ms; }
-
+.experience-title { font-size: clamp(3.8rem, 6.5vw, 6.9rem); }
 @media (max-width: 639px) {
-  .experience-title { font-size: clamp(3.8rem, 16vw, 5.8rem); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .experience-reveal { opacity: 1; transform: none; transition: none; }
+  .experience-title { font-size: clamp(3.5rem, 14.4vw, 5.2rem); }
 }
 </style>

@@ -25,6 +25,8 @@ const primaryLabel = computed(() =>
   <article class="project-showcase" :class="{ 'project-showcase--offset': index % 2 === 1 }">
     <component
       :is="primaryUrl ? 'a' : 'div'"
+      data-scroll-reveal
+      :style="{ '--reveal-delay': `${Math.min(index * 60, 240)}ms` }"
       class="project-media relative block overflow-hidden border border-line"
       :class="{ 'project-media--linked': primaryUrl, 'project-media--empty': !project.imageUrl || imageFailed }"
       :href="primaryUrl || undefined"
@@ -48,14 +50,14 @@ const primaryLabel = computed(() =>
       </span>
     </component>
 
-    <div class="project-info mt-7 grid gap-8 border-t border-line pt-7 md:mt-10 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] md:gap-12 md:pt-9">
+    <div data-scroll-reveal style="--reveal-delay: 100ms" class="project-info mt-6 grid gap-7 border-t border-line pt-6 md:mt-8 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] md:gap-10 md:pt-8">
       <div>
         <p class="mb-4 text-[0.72rem] font-medium tracking-[0.15em] text-accent">{{ String(index + 1).padStart(2, '0') }} / {{ project.year }}</p>
         <h3 class="project-title font-editorial leading-[0.88] tracking-[-0.055em] text-ink">{{ project.title }}</h3>
       </div>
 
       <div class="flex flex-col items-start gap-7 md:gap-8">
-        <p class="max-w-[36rem] text-[1.1rem] leading-[1.7] text-ink sm:text-[1.2rem]">{{ project.summary }}</p>
+        <p class="max-w-[36rem] text-[1rem] leading-[1.65] text-ink sm:text-[1.08rem]">{{ project.summary }}</p>
         <ul v-if="project.technologies.length" class="flex flex-wrap items-center gap-x-6 gap-y-3" aria-label="Tecnologias utilizadas">
           <li v-for="technology in visibleTechnologies" :key="technology.id">
             <TechnologyLabel :technology="technology" />
@@ -67,7 +69,7 @@ const primaryLabel = computed(() =>
         </ul>
         <div v-if="project.demoUrl || project.githubUrl" class="flex flex-wrap gap-x-9 gap-y-2 pt-2 text-[0.82rem] font-medium tracking-[0.12em]">
           <a v-if="project.demoUrl" class="interactive-line inline-flex min-h-11 items-center gap-1.5" :href="project.demoUrl" target="_blank" rel="noopener noreferrer">
-            LIVE SITE <ArrowUpRight :size="16" :stroke-width="1.5" aria-hidden="true" />
+            VER PROJETO <ArrowUpRight :size="16" :stroke-width="1.5" aria-hidden="true" />
             <span class="sr-only"> de {{ project.title }} (abre em nova aba)</span>
           </a>
           <a v-if="project.githubUrl" class="interactive-line inline-flex min-h-11 items-center gap-1.5" :href="project.githubUrl" target="_blank" rel="noopener noreferrer">
@@ -85,8 +87,10 @@ const primaryLabel = computed(() =>
 .project-media { margin-inline: calc(var(--space-page) / -2); }
 .project-media--empty { aspect-ratio: 16 / 10; }
 .project-media img { transition: transform 700ms var(--ease-editorial); }
-.project-open { transition: transform var(--transition-quiet); }
-.project-title { font-size: clamp(3.4rem, 6.8vw, 7rem); overflow-wrap: anywhere; }
+.project-open {
+  transition: transform var(--transition-quiet), color 260ms var(--ease-editorial), background-color 260ms var(--ease-editorial), border-color 260ms var(--ease-editorial);
+}
+.project-title { font-size: clamp(3.1rem, 6.1vw, 6.3rem); overflow-wrap: anywhere; }
 
 @media (min-width: 1024px) {
   .project-showcase--offset { width: 82%; margin-left: auto; }

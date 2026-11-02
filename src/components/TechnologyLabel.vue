@@ -28,7 +28,7 @@ watch(iconUrl, () => { imageFailed.value = false })
       :src="iconUrl"
       alt=""
       aria-hidden="true"
-      class="size-5 shrink-0 object-contain"
+      class="technology-icon size-5 shrink-0 object-contain"
       width="20"
       height="20"
       loading="lazy"
